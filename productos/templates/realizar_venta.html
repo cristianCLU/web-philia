@@ -1,0 +1,15 @@
+{% extends 'productos/base.html' %}
+
+{% block title %}Realizar Venta{% endblock %}
+
+{% block content %}
+<div class="mt-4">
+    <h1>Realizar Venta</h1>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-success">Realizar Venta</button>
+    </form>
+    <a href="{% url 'lista_ventas' %}" class="btn btn-secondary mt-3">Ver Ventas</a>
+</div>
+{% endblock %}

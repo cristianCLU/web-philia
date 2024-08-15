@@ -1,0 +1,15 @@
+{% extends 'productos/base.html' %}
+
+{% block title %}Añadir al Carrito{% endblock %}
+
+{% block content %}
+<div class="mt-4">
+    <h1>Añadir {{ producto.nombre }} al Carrito</h1>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-primary">Añadir al Carrito</button>
+    </form>
+    <a href="{% url 'lista_productos' %}" class="btn btn-secondary mt-3">Volver a la Lista de Productos</a>
+</div>
+{% endblock %}

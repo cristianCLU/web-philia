@@ -1,0 +1,47 @@
+{% extends 'productos/base.html' %}
+
+{% block title %}Ver Carrito{% endblock %}
+
+{% block content %}
+<div class="mt-4">
+    <h1>Carrito de Compras</h1>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Producto</th>
+                <th>Cantidad</th>
+                <th>Precio</th>
+                <th>Subtotal</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in items %}
+                <tr>
+                    <td>{{ item.producto.nombre }}</td>
+                    <td>{{ item.cantidad }}</td>
+                    <td>${{ item.producto.precio }}</td>
+                    <td>${{ item.subtotal }}</td>
+                    <td>
+                        <form action="{% url 'eliminar_del_carrito' item.id %}" method="post">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger">Eliminar</button>
+                        </form>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="3" class="text-right"><strong>Total:</strong></td>
+                <td>${{ total }}</td>
+                <td></td>
+            </tr>
+        </tfoot>
+    </table>
+    <div class="d-flex justify-content-between mt-3">
+        <a href="{% url 'lista_productos' %}" class="btn btn-secondary">Seguir Comprando</a>
+        <a href="{% url 'confirmar_compra' %}" class="btn btn-success">Confirmar Compra</a>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,21 @@
+{% extends 'productos/base.html' %}
+
+{% block title %}Añadir Producto{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4">Añadir Producto</h1>
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <form method="post" class="needs-validation" novalidate>
+                {% csrf_token %}
+                <div class="form-group">
+                    {{ form.as_p }}
+                </div>
+                <button type="submit" class="btn btn-primary">Guardar</button>
+                <a href="{% url 'lista_productos' %}" class="btn btn-secondary ml-2">Volver a la Lista</a>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

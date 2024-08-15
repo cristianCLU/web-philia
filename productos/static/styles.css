@@ -1,0 +1,141 @@
+.navbar-nav .nav-link {
+    color: #0c0e11; /* Cambia el color del texto */
+    font-size: 18px; /* Cambia el tamaño de la fuente */
+    font-weight: bold; /* Cambia el grosor de la fuente */
+    font-family: 'Arial', sans-serif; /* Cambia la fuente */
+}
+/* General container styling */
+.container {
+    max-width: 600px; /* Ajusta el ancho del contenedor para una mejor visualización en pantallas medianas */
+    margin: 0 auto; /* Centra el contenedor horizontalmente */
+    padding: 20px; /* Espaciado interno del contenedor */
+}
+
+/* Form styling */
+form {
+    background-color: #f8f9fa; /* Fondo ligeramente gris para suavizar el contraste */
+    border: 1px solid #e0e0e0; /* Borde gris claro alrededor del formulario */
+    border-radius: 8px; /* Bordes redondeados para un diseño más suave */
+    padding: 30px; /* Espaciado interno amplio */
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1); /* Sombra sutil para dar profundidad */
+    transition: box-shadow 0.3s ease; /* Transición suave para el efecto de sombra */
+}
+
+/* Form group styling */
+.form-group {
+    margin-bottom: 1.5rem; /* Espaciado entre los campos del formulario */
+}
+
+/* Input fields styling */
+.form-control {
+    border-radius: 4px; /* Bordes redondeados para los campos */
+    border: 1px solid #ced4da; /* Borde gris claro */
+    padding: 0.75rem 1.25rem; /* Espaciado interno para una mejor entrada de texto */
+    font-size: 1rem; /* Tamaño de fuente estándar */
+    transition: border-color 0.3s ease, box-shadow 0.3s ease; /* Transiciones suaves para cambios de color */
+}
+
+.form-control:focus {
+    border-color: #007bff; /* Color de borde azul al enfocar */
+    box-shadow: 0 0 0 0.2rem rgba(38, 143, 255, 0.25); /* Sombra sutil azul al enfocar */
+}
+
+/* Button styling */
+.btn {
+    border-radius: 4px; /* Bordes redondeados para los botones */
+    font-weight: 600; /* Fuente en negrita para mejor legibilidad */
+    padding: 0.75rem 1.5rem; /* Espaciado interno para botones más grandes */
+    font-size: 1rem; /* Tamaño de fuente estándar */
+    transition: background-color 0.3s ease, border-color 0.3s ease; /* Transiciones suaves para cambios de color */
+}
+
+.btn-primary {
+    background-color: #007bff; /* Color de fondo azul para el botón primario */
+    border-color: #007bff; /* Color del borde azul */
+    color: #ffffff; /* Color del texto blanco */
+}
+
+.btn-primary:hover {
+    background-color: #0056b3; /* Color de fondo azul oscuro en hover */
+    border-color: #004a99; /* Color del borde azul oscuro en hover */
+}
+
+.btn-secondary {
+    background-color: #6c757d; /* Color de fondo gris para el botón secundario */
+    border-color: #6c757d; /* Color del borde gris */
+    color: #ffffff; /* Color del texto blanco */
+}
+
+.btn-secondary:hover {
+    background-color: #5a6268; /* Color de fondo gris oscuro en hover */
+    border-color: #545b62; /* Color del borde gris oscuro en hover */
+}
+
+/* Button spacing */
+.btn + .btn {
+    margin-left: 10px; /* Espaciado entre botones */
+}
+
+/* Responsive adjustments */
+@media (max-width: 767.98px) {
+    .container {
+        padding: 15px; /* Menos relleno en pantallas pequeñas */
+    }
+}
+
+
+/* Estilo general de las cartas para ventas */
+.card {
+    border: 1px solid #e0e0e0; /* Borde ligero alrededor de la carta */
+    border-radius: 8px; /* Bordes redondeados */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Sombra sutil para profundidad */
+    transition: box-shadow 0.3s ease, transform 0.3s ease; /* Transición suave para sombra y transformaciones */
+}
+
+.card:hover {
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* Sombra más pronunciada al pasar el mouse */
+    transform: translateY(-5px); /* Levanta la carta ligeramente al pasar el mouse */
+}
+
+.card-body {
+    padding: 20px; /* Espaciado interno */
+}
+
+.card-title {
+    font-size: 1.25rem; /* Tamaño de fuente para el título */
+    font-weight: 600; /* Fuente en negrita para el título */
+    margin-bottom: 0.5rem; /* Espaciado debajo del título */
+}
+
+.card-text {
+    font-size: 1rem; /* Tamaño de fuente estándar */
+    margin-bottom: 0.5rem; /* Espaciado entre líneas de texto */
+}
+
+.card-subtitle {
+    font-size: 1.1rem; /* Tamaño de fuente para subtítulos */
+    font-weight: 500; /* Fuente en negrita */
+    margin-top: 1rem; /* Espaciado encima del subtítulo */
+    margin-bottom: 0.5rem; /* Espaciado debajo del subtítulo */
+}
+
+.list-unstyled {
+    padding-left: 0; /* Quita el padding izquierdo de la lista */
+}
+
+.list-unstyled li {
+    padding: 0.5rem 0; /* Espaciado interno de los elementos de la lista */
+    border-bottom: 1px solid #e0e0e0; /* Línea divisoria entre elementos */
+}
+
+.list-unstyled li:last-child {
+    border-bottom: none; /* Quita la línea divisoria del último elemento */
+}
+
+.d-flex {
+    display: flex; /* Flexbox para alinear elementos */
+}
+
+.justify-content-between {
+    justify-content: space-between; /* Espacio entre los elementos */
+}

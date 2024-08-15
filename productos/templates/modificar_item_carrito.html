@@ -1,0 +1,13 @@
+{% extends 'productos/base.html' %}
+
+{% block title %}Modificar Item Carrito{% endblock %}
+
+{% block content %}
+<div class="mt-4">
+    <h1>Modificar Item del Carrito</h1>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-success">Guardar</button>
+    </form>
+{% endblock %}
