@@ -1,31 +1,142 @@
 {% extends 'productos/base.html' %}
 
+{% load custom_filters %} <!-- Carga los filtros personalizados -->
+
 {% block title %}Lista de Ventas{% endblock %}
 
 {% block content %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<style>
+
+
+    h1 {
+        color: white;
+        font-size: 3rem;
+        margin-bottom: 20px;
+    }
+
+</style>
 <div class="container mt-4">
-    <h1 class="mb-4">Lista de Ventas</h1>
-    <div class="row">
+    <h1 class="mb-5 text-white text-center" style="font-size: 4rem; font-weight: bold;">Lista de Ventas</h1>
+    
+    <!-- Resumen de Ventas -->
+    <div class="row mb-5">
+        <div class="col-md-4">
+            <div class="p-4 rounded shadow-lg" style="background-color: #2c2c2c; border-radius: 15px; box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);">
+                <h3 class="text-white mb-3" style="font-size: 2rem; font-weight: bold;">Resumen</h3>
+                <p class="text-white" style="font-size: 1.5rem; font-weight: 600;">
+                    <strong>Total Ventas:</strong> {{ ventas|length }}
+                </p>
+                <p class="text-white" style="font-size: 1.5rem; font-weight: 600;">
+                    <strong>Monto Total:</strong> {{ ventas|sum_total|clp }} <!-- Usa un filtro personalizado -->
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="row gy-5"> <!-- 'gy-5' agrega más espacio vertical entre filas -->
         {% for venta in ventas %}
-        <div class="col-md-6 mb-4">
-            <div class="card">
+        <div class="col-lg-4 col-md-6 mb-4 d-flex"> <!-- 'd-flex' asegura que las tarjetas ocupen toda la altura -->
+            <div class="card w-100"
+                style="
+                    background-color: #2c2c2c; 
+                    border: none; 
+                    border-radius: 15px; 
+                    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4); 
+                    transition: transform 0.3s ease, box-shadow 0.3s ease;
+                "
+                onmouseover="this.style.transform='scale(1.05)'; this.style.boxShadow='0 8px 16px rgba(0, 0, 0, 0.5)';"
+                onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 6px 12px rgba(0, 0, 0, 0.4)';"
+            >
                 <div class="card-body">
-                    <h5 class="card-title">Venta ID: {{ venta.id }}</h5>
-                    <p class="card-text"><strong>Fecha:</strong> {{ venta.fecha }}</p>
-                    <p class="card-text"><strong>Total:</strong> {{ venta.total }}</p>
-                    <h6 class="card-subtitle mb-2 text-muted">Detalles de la Venta</h6>
+                    <!-- Fecha -->
+                    <p class="card-text text-white" style="font-size: 1.5rem; font-weight: 600;">
+                        <strong>Fecha:</strong> {{ venta.fecha }}
+                    </p>
+                    <!-- Total -->
+                    <p class="card-text text-white" style="font-size: 1.5rem; font-weight: 600;">
+                        <strong>Total:</strong> {{ venta.total|clp }}
+                    </p>
+
+                    <!-- Detalles -->
+                    <h6 class="card-subtitle mb-3 text-muted" style="font-size: 1.3rem; font-weight: bold;">Detalles de la Venta</h6>
                     <ul class="list-unstyled">
                         {% for item in venta.items.all %}
-                        <li class="d-flex justify-content-between">
+                        <li class="d-flex justify-content-between text-white" style="font-size: 1.3rem; font-weight: 500; padding: 8px 0;">
                             <span>{{ item.producto.nombre }}</span>
-                            <span>{{ item.cantidad }} x {{ item.subtotal }}</span>
+                            <span>{{ item.cantidad }} x {{ item.subtotal|clp }}</span>
                         </li>
                         {% endfor %}
                     </ul>
+                    <hr style="border-color: #bbb; margin: 15px 0;"> <!-- Línea separadora -->
+                    <div class="d-flex justify-content-between text-white" style="font-size: 1.5rem; font-weight: bold;">
+                        <span>Total:</span>
+                        <span>{{ venta.total|clp }}</span> <!-- Total con formato CLP -->
+                    </div>
+
+                    <!-- Botones -->
+                    <div class="button-group d-flex justify-content-between mt-4">
+                        <!-- Botón de Imprimir -->
+                        <a href="{% url 'imprimir_ticket' venta.id %}" 
+                           class="btn btn-lg d-flex align-items-center"
+                           style="
+                               background-color: #5bc0de; 
+                               color: white; 
+                               font-size: 1.3rem; 
+                               padding: 10px 20px; 
+                               border-radius: 8px; 
+                               text-decoration: none; 
+                               transition: transform 0.2s ease, background-color 0.2s ease;
+                           "
+                           onmouseover="this.style.backgroundColor='#46a0c4'; this.style.transform='scale(1.1)';"
+                           onmouseout="this.style.backgroundColor='#5bc0de'; this.style.transform='scale(1)';"
+                        >
+                            <i class="fa-solid fa-print" style="margin-right: 8px;"></i>
+                            Imprimir
+                        </a>
+
+                        <!-- Botón de Eliminar -->
+                        <form action="{% url 'eliminar_venta' venta.id %}" method="post" style="background-color: transparent; border: none; margin: 0; padding: 0;">
+                            {% csrf_token %}
+                            <button 
+                                type="submit" 
+                                class="btn btn-lg d-flex align-items-center"
+                                style="
+                                    background-color: #ff4d4d; 
+                                    color: white; 
+                                    border: none; 
+                                    font-size: 1.3rem; 
+                                    padding: 10px 20px; 
+                                    border-radius: 8px; 
+                                    transition: transform 0.2s ease, background-color 0.2s ease;
+                                "
+                                onmouseover="this.style.backgroundColor='#e63939'; this.style.transform='scale(1.1)';"
+                                onmouseout="this.style.backgroundColor='#ff4d4d'; this.style.transform='scale(1)';"
+                            >
+                                <i class="fa-solid fa-trash" style="margin-right: 8px;"></i>
+                                Eliminar
+                            </button>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
         {% endfor %}
     </div>
 </div>
+
+<script>
+    const button = document.querySelector('.btn');
+
+button.addEventListener('click', () => {
+    button.querySelector('.btn-text').textContent = 'Loading...';
+    button.querySelector('i').classList.add('fa-spinner', 'fa-spin'); // Add spinning icon
+
+    setTimeout(() => {
+        button.querySelector('.btn-text').textContent = 'Submitted';
+        button.querySelector('i').classList.remove('fa-spinner', 'fa-spin');
+    }, 2000); // Simulate loading time
+});
+</script>
+
 {% endblock %}

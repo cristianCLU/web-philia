@@ -1,8 +1,27 @@
-<form action="{% url 'añadir_al_carrito' producto.id %}" method="post">
-    {% csrf_token %}
-    <div class="form-group">
-        <label for="cantidad">Cantidad:</label>
-        <input type="number" id="cantidad" name="cantidad" min="1" value="1" class="form-control" />
-    </div>
-    <button type="submit" class="btn btn-primary">Añadir al Carrito</button>
-</form>
+<div class="container mt-4">
+    <form action="{% url 'añadir_al_carrito' producto.id %}" method="post" class="p-4 rounded shadow-lg" style="background-color: #1a1a1a;">
+        {% csrf_token %}
+        <h2 class="text-center text-white mb-4">Añadir Producto al Carrito</h2>
+        <div class="form-group mb-3">
+            <label for="cantidad" class="form-label text-white">Cantidad:</label>
+            <input 
+                type="number" 
+                id="cantidad" 
+                name="cantidad" 
+                min="1" 
+                value="1" 
+                class="form-control"
+                style="background-color: #333; color: white; border: 1px solid #555; border-radius: 8px;"
+            />
+        </div>
+        <button 
+            type="submit" 
+            class="btn btn-primary w-100"
+            style="background-color: #ee5ee7; border: none; font-size: 1.2rem; font-weight: bold; transition: transform 0.2s ease;"
+            onmouseover="this.style.transform='scale(1.05)';"
+            onmouseout="this.style.transform='scale(1)';"
+        >
+            Añadir al Carrito
+        </button>
+    </form>
+</div>

@@ -1,0 +1,140 @@
+/* Estilos generales */
+body {
+    margin: 0;
+    padding: 0;
+    background: url('{% static "productos/fondo.png" %}') no-repeat center center fixed; /* Imagen de fondo */
+    background-size: cover; /* Ajusta la imagen para cubrir toda la pantalla */
+    color: #ffffff; /* Texto blanco por defecto */
+    transition: background-color 0.3s ease, color 0.3s ease; /* Transición para cambios de color */
+}
+
+
+
+/* Fuente principal (general del sitio) */
+body {
+    font-family: 'Poppins', sans-serif; /* Fuente versátil y moderna */
+    font-weight: 400; /* Peso normal por defecto */
+}
+
+/* Fuente para títulos llamativos */
+h1, h2, h3 {
+    font-family: 'Prosto One', sans-serif; /* Estilo decorativo */
+    font-weight: 400;
+}
+
+/* Fuente para textos informales o amigables */
+p, a {
+    font-family: 'Varela Round', sans-serif; /* Fuente amigable y redondeada */
+    font-weight: 400;
+}
+
+/* Variables de colores */
+:root {
+    --bg-color: #ffffff; /* Fondo claro */
+    --text-color: #000000; /* Texto oscuro */
+    --primary-color: #ee5ee7; /* Morado */
+    --secondary-color: #343a40; /* Gris oscuro */
+}
+/* Navbar */
+.navbar {
+    position: relative;
+    z-index: 10; /* Asegura que esté por encima del fondo */
+    background: rgba(0, 0, 0, 0.7); /* Fondo negro semitransparente */
+    padding: 1rem 2rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2); /* Sutil sombra */
+    border-radius: 8px; /* Bordes redondeados */
+}
+/* Excluir logo del centrado */
+.navbar-brand .logo-img {
+    width: 50px; /* Tamaño fijo para el logo */
+    height: 50px;
+    object-fit: cover; /* Asegura que la imagen no se deforme */
+    border-radius: 50%; /* Hace el logo redondo */
+}
+
+.navbar-nav {
+    margin: 0 auto; /* Centra los elementos del menú */
+}
+
+/* Estilo de Enlaces */
+.navbar-nav .nav-link {
+    font-family: 'Poppins', Arial, sans-serif;
+    font-size: 20px; /* Letras más grandes */
+    font-weight: 500; /* Peso medio para mayor legibilidad */
+    color: #ffffff; /* Letras blancas */
+    margin: 0 10px; /* Espaciado entre los enlaces */
+    transition: color 0.3s ease, transform 0.3s ease; /* Transición suave */
+}
+
+.navbar-nav .nav-link:hover {
+    color: #ee5ee7; /* Cambian a morado al pasar el ratón */
+    transform: scale(1.1); /* Ligero aumento en tamaño */
+}
+/* Logo */
+.navbar-brand .logo-img {
+    width: 50px; /* Tamaño del logo */
+    height: 50px; /* Mantén el logo cuadrado */
+    object-fit: cover; /* Ajusta la imagen al contenedor */
+    border-radius: 50%; /* Hace el logo redondo */
+    transition: transform 0.3s ease; /* Transición para el efecto hover */
+}
+
+.navbar-brand .logo-img:hover {
+    transform: scale(1.1); /* Efecto de zoom */
+}
+/* Formularios */
+form {
+    background-color: #ffffff; /* Fondo blanco para formularios */
+    border: 1px solid var(--secondary-color); /* Borde gris oscuro */
+    border-radius: 8px; /* Bordes redondeados */
+    padding: 30px;
+    box-shadow: 0 6px 12px rgb(30, 18, 44); /* Sombra ligera */
+    transition: background-color 0.3s, border-color 0.3s;
+}
+
+form:focus-within {
+    border-color: #ee5ee7; /* Cambia el borde al color morado cuando el formulario está enfocado */
+}
+
+/* Botones */
+.btn {
+    border-radius: 4px;
+    font-weight: 600;
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+    background-color: var(--primary-color);
+    color: #ffffff;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+
+.btn:hover {
+    background-color: var(--secondary-color); /* Cambia a gris oscuro al pasar el ratón */
+    color: var(--primary-color); /* Cambia el texto a morado */
+}
+
+
+
+
+
+/* Responsivo */
+@media (max-width: 767.98px) {
+    .navbar {
+        border-radius: 0; /* Sin bordes redondeados en pantallas pequeñas */
+    }
+
+    .navbar-nav {
+        flex-direction: column; /* Apila los elementos verticalmente */
+        text-align: center; /* Centra el texto */
+    }
+
+    .navbar-nav .nav-link {
+        margin: 10px 0; /* Espaciado vertical entre enlaces */
+        font-size: 18px; /* Letras ligeramente más pequeñas en pantallas pequeñas */
+    }
+
+    .navbar-brand .logo-img {
+        width: 40px; /* Reduce el tamaño del logo en pantallas pequeñas */
+        height: 40px;
+    }
+}

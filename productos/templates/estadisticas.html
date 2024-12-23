@@ -1,0 +1,172 @@
+{% extends 'productos/base.html' %}
+
+{% load custom_filters %} <!-- Carga los filtros personalizados -->
+ <!-- Cargar los filtros personalizados -->
+
+{% block title %}Estadísticas{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1 class="text-white text-center mb-5 display-3" style="font-family: 'Roboto Slab', serif;">Estadísticas</h1>
+
+    <div class="row mb-5">
+        <!-- Total de ingresos -->
+        <div class="col-12 col-md-6 col-lg-3 mb-4">
+            <div class="card bg-dark text-white h-100 shadow-lg">
+                <div class="card-body d-flex flex-column align-items-center justify-content-center">
+                    <i class="fas fa-dollar-sign fa-4x mb-3"></i>
+                    <h5 class="card-title display-6">Total de Ingresos</h5>
+                    <p class="card-text display-5 fw-bold">{{ total_ingresos|clp }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Total de ventas -->
+        <div class="col-12 col-md-6 col-lg-3 mb-4">
+            <div class="card bg-dark text-white h-100 shadow-lg">
+                <div class="card-body d-flex flex-column align-items-center justify-content-center">
+                    <i class="fas fa-shopping-cart fa-4x mb-3"></i>
+                    <h5 class="card-title display-6">Total de Ventas</h5>
+                    <p class="card-text display-5 fw-bold">{{ total_ventas }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Productos vendidos -->
+        <div class="col-12 col-md-6 col-lg-3 mb-4">
+            <div class="card bg-dark text-white h-100 shadow-lg">
+                <div class="card-body d-flex flex-column align-items-center justify-content-center">
+                    <i class="fas fa-boxes fa-4x mb-3"></i>
+                    <h5 class="card-title display-6">Productos Vendidos</h5>
+                    <p class="card-text display-5 fw-bold">{{ productos_vendidos }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Promedio de ingresos -->
+        <div class="col-12 col-md-6 col-lg-3 mb-4">
+            <div class="card bg-dark text-white h-100 shadow-lg">
+                <div class="card-body d-flex flex-column align-items-center justify-content-center">
+                    <i class="fas fa-chart-line fa-4x mb-3"></i>
+                    <h5 class="card-title display-6">Promedio por Venta</h5>
+                    <p class="card-text display-5 fw-bold">{{ promedio_ingreso|clp }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Gráfico de Productos Populares -->
+    <div class="card bg-dark text-white shadow-lg">
+        <div class="card-body">
+            <h2 class="card-title mb-4 text-center" style="font-family: 'Roboto Slab', serif;">Productos Populares</h2>
+            <canvas id="productosPopularesChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- Font Awesome para los iconos -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-pZm1HrYcE3z9kEji5KXfR8tT/wfTRlV1qcbq7uOz2fN+0Kp3EVOI7JpEYkM0Cg8I67v/1EW0NvXaDw0lycHjBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+<!-- Google Fonts (Roboto Slab ya incluido arriba) -->
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<!-- Estilos Personalizados -->
+<style>
+    body {
+        background-color: #1a1a1a;
+        font-family: 'Roboto Slab', serif;
+    }
+    .card-title {
+        font-size: 1.25rem;
+    }
+    .card-text {
+        font-size: 2rem;
+    }
+    canvas {
+        max-height: 500px;
+    }
+</style>
+
+<script>
+    // Obtener datos de los productos populares desde Django
+    const productosPopularesLabels = {{ productos_populares.labels|safe }};
+    const productosPopularesDataValues = {{ productos_populares.data|safe }};
+
+    const productosPopularesData = {
+        labels: productosPopularesLabels,
+        datasets: [{
+            label: 'Cantidad Vendida',
+            data: productosPopularesDataValues,
+            backgroundColor: 'rgba(255, 99, 132, 0.6)', // Color más vibrante
+            borderColor: 'rgba(255, 99, 132, 1)',
+            borderWidth: 2,
+            borderRadius: 10, // Bordes redondeados
+            hoverBackgroundColor: 'rgba(255, 99, 132, 0.8)',
+            hoverBorderColor: 'rgba(255, 99, 132, 1)',
+        }]
+    };
+
+    const productosPopularesConfig = {
+        type: 'bar',
+        data: productosPopularesData,
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { 
+                    display: false 
+                },
+                tooltip: { 
+                    enabled: true,
+                    backgroundColor: '#333',
+                    titleFont: { size: 16, family: 'Roboto Slab' },
+                    bodyFont: { size: 14, family: 'Roboto Slab' },
+                    callbacks: { 
+                        label: (context) => `Cantidad: ${context.parsed.y}` 
+                    }
+                },
+                title: {
+                    display: false,
+                },
+            },
+            scales: {
+                x: {
+                    grid: {
+                        display: false,
+                        drawBorder: false,
+                    },
+                    ticks: {
+                        color: '#fff',
+                        font: {
+                            size: 14,
+                            family: 'Roboto Slab',
+                            weight: 'bold'
+                        }
+                    }
+                },
+                y: {
+                    beginAtZero: true,
+                    grid: {
+                        color: 'rgba(255, 255, 255, 0.1)',
+                        drawBorder: false,
+                    },
+                    ticks: {
+                        color: '#fff',
+                        font: {
+                            size: 14,
+                            family: 'Roboto Slab',
+                            weight: 'bold'
+                        },
+                        precision:0
+                    }
+                }
+            }
+        }
+    };
+
+    // Renderizar el gráfico
+    const ctx = document.getElementById('productosPopularesChart').getContext('2d');
+    new Chart(ctx, productosPopularesConfig);
+</script>
+{% endblock %}

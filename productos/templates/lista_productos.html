@@ -1,23 +1,95 @@
 {% extends 'productos/base.html' %}
 
+{% load custom_filters %} <!-- Carga los filtros personalizados -->
+
 {% block title %}Lista de Productos{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <h1 class="mb-4">Lista de Productos</h1>
-    <div class="row">
+
+
+<div class="container mt-5 mb-5">
+    <h1 class="mb-5 text-white text-center" style="font-size: 3.5rem; font-weight: bold;">Lista de Productos</h1>
+    <div class="row gy-5 gx-5"> <!-- gy-5 y gx-5 para mayor separación -->
         {% for producto in productos %}
-        <div class="col-md-4 mb-4">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">{{ producto.nombre }}</h5>
-                    <p class="card-text">Precio: {{ producto.precio }}</p>
-                    <p class="card-text">Cantidad: {{ producto.cantidad }}</p>
-                    <a href="{% url 'añadir_al_carrito' producto.id %}" class="btn btn-primary">Añadir al Carrito</a>
+        <div class="col-lg-4 col-md-6 col-sm-12 d-flex align-items-stretch">
+            <div class="card shadow-lg w-100"
+                 style="
+                     background-color: #2b2b2b;  /* Fondo gris más claro */
+                     color: white; 
+                     border-radius: 15px; 
+                     border: 2px solid white;  /* Borde blanco */
+                     transition: transform 0.3s ease, box-shadow 0.3s ease;
+                     margin: 20px 0;  /* Separación adicional */
+                 "
+                 onmouseover="this.style.transform='scale(1.05)'; this.style.boxShadow='0 10px 20px rgba(255, 255, 255, 0.4)';"
+                 onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 5px 10px rgba(255, 255, 255, 0.2)';"
+            >
+                <!-- Cuerpo de la tarjeta -->
+                <div class="card-body text-center" style="padding: 40px;">
+                    <!-- Título -->
+                    <h5 class="card-title" style="font-size: 1.8rem; font-weight: bold;">{{ producto.nombre }}</h5>
+                    <!-- Descripción -->
+                    <p class="card-text" style="font-size: 1.2rem; line-height: 1.6; color: white;">
+                        {{ producto.descripcion|truncatechars:100 }}
+                    </p>
+                    <!-- Precio -->
+                    <p class="card-text" style="font-size: 1.5rem; font-weight: bold; color: #ee5ee7;">
+                        Precio: {{ producto.precio|clp }}
+                    </p>
+                    <!-- Botones -->
+                    <div class="d-flex justify-content-between mt-3">
+                        <!-- Botón Añadir -->
+                        <a href="{% url 'añadir_al_carrito' producto.id %}" 
+                           class="btn btn-lg d-flex align-items-center justify-content-center"
+                           style="
+                               background-color: #5bc0de; 
+                               color: white; 
+                               font-size: 1.2rem; 
+                               font-weight: bold; 
+                               padding: 12px 25px; 
+                               border-radius: 10px; 
+                               text-decoration: none; 
+                               transition: background-color 0.3s ease, transform 0.3s ease;
+                           "
+                           onmouseover="this.style.backgroundColor='#46a0c4'; this.style.transform='scale(1.1)';"
+                           onmouseout="this.style.backgroundColor='#5bc0de'; this.style.transform='scale(1)';"
+                        >
+                            <i class="fas fa-cart-plus" style="margin-right: 10px;"></i>
+                            Añadir
+                        </a>
+
+                        <!-- Botón Quitar -->
+                        <form action="{% url 'quitar' producto.id %}" method="post" style="margin: 0; padding: 0;">
+                            {% csrf_token %}
+                            <button type="submit" 
+                                class="btn btn-lg d-flex align-items-center justify-content-center"
+                                style="
+                                    background-color: #ff4d4d; 
+                                    color: white; 
+                                    border: none; 
+                                    font-size: 1.2rem; 
+                                    font-weight: bold; 
+                                    padding: 12px 25px; 
+                                    border-radius: 10px; 
+                                    transition: transform 0.2s ease, background-color 0.2s ease;
+                                "
+                                onmouseover="this.style.backgroundColor='#e63939'; this.style.transform='scale(1.1)';"
+                                onmouseout="this.style.backgroundColor='#ff4d4d'; this.style.transform='scale(1)';"
+                                onclick="return confirm('¿Estás seguro de que deseas eliminar este producto?');"
+                            >
+                                <i class="fas fa-trash" style="margin-right: 10px;"></i>
+                                Quitar
+                            </button>
+                        </form>
+                        
+                        
+                    </div>
                 </div>
             </div>
         </div>
         {% endfor %}
     </div>
 </div>
+
+
 {% endblock %}

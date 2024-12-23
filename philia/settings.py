@@ -35,6 +35,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'productos',
+    'widget_tweaks',
 ]
 
 MIDDLEWARE = [
@@ -100,12 +101,10 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/4.1/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'es-cl'
+TIME_ZONE = 'America/Santiago'
 
-TIME_ZONE = 'UTC'
-
-USE_I18N = True
-
+USE_L10N = True
 USE_TZ = True
 
 
@@ -114,6 +113,10 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
+# Opcional: si estás usando carpetas estáticas globales
+STATICFILES_DIRS = [
+    BASE_DIR / "static",  # Asegúrate de que esta ruta sea válida
+]
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field

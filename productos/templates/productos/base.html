@@ -5,47 +5,111 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Mi Aplicación{% endblock %}</title>
     {% load static %}
-    <link rel="stylesheet" href="{% static 'styles.css' %}">
+    <link rel="stylesheet" href="{% static 'philiastyles.css' %}">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
 </head>
-<body>
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-        </button>
 
+<style>
+    body {
+        margin: 0;
+        padding: 0;
+        font-family: 'Poppins', Arial, sans-serif;
+        background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), 
+                    url("{% static 'productos/fondo.png' %}") no-repeat center center fixed;
+        background-size: cover; /* Ajusta la imagen para cubrir todo el viewport */
+        transition: background-color 0.3s ease, color 0.3s ease; /* Transición suave */
+        color:rgb(0, 0, 0); /* Texto blanco por defecto para contraste */
+    }
+    
+    <style>
+        h1 {
+            color: white;
+            font-size: 3rem; /* Tamaño del título */
+        }
+    
+        table th {
+            color: white;
+        }
+
+    </style>
+</style>
+
+<body id="body">
+    <nav class="navbar navbar-expand-lg">
+        <a class="navbar-brand" href="#">
+            <img src="{% static 'productos/logo.jpg' %}" alt="Logo" class="logo-img">
+        </a>
+        
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
         <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav mx-auto">
+            <ul class="navbar-nav ml-auto">
                 <li class="nav-item">
-                    <a class="nav-link" href="{% url 'añadir_producto' %}">Añadir Nuevo Producto</a>
+                    <a href="{% url 'añadir_producto' %}" class="nav-link">Añadir Nuevo Producto</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="{% url 'lista_productos' %}">Productos</a>
+                    <a href="{% url 'lista_productos' %}" class="nav-link">Productos</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="{% url 'lista_ventas' %}">Historial de Ventas</a>
+                    <a href="{% url 'lista_ventas' %}" class="nav-link">Historial de Ventas</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="{% url 'ver_carrito' %}">Carrito <span class="badge badge-primary">{{ carrito_total }}</span></a>
+                    <a href="{% url 'estadisticas' %}" class="nav-link">Estadísticas</a>
                 </li>
+                <li class="nav-item">
+                    <a href="{% url 'ver_carrito' %}" 
+                       class="nav-link d-flex align-items-center justify-content-between"
+                       style="
+                           font-size: 1.2rem; 
+                           font-weight: bold; 
+                           color: white; 
+                           text-decoration: none; 
+                           transition: color 0.3s ease, transform 0.2s ease;
+                       "
+                       onmouseover="this.style.color='#ee5ee7'; this.style.transform='scale(1.05)';"
+                       onmouseout="this.style.color='white'; this.style.transform='scale(1)';"
+                    >
+                        <i class="fas fa-shopping-cart" style="margin-right: 8px; font-size: 1.4rem;"></i>
+                        Carrito
+                        <span 
+                            class="badge badge-primary" 
+                            style="
+                                background-color: #ee5ee7; 
+                                color: white; 
+                                font-size: 1rem; 
+                                font-weight: bold; 
+                                margin-left: 10px; 
+                                border-radius: 12px; 
+                                padding: 5px 10px;
+                            "
+                        >
+                            {{ carrito_total }}
+                        </span>
+                    </a>
+                </li>
+                
             </ul>
         </div>
     </nav>
-
-    <div class="container">
         {% if messages %}
-        <div class="mt-4">
-            {% for message in messages %}
-            <div class="alert {% if message.tags %}alert-{{ message.tags }}{% else %}alert-info{% endif %}" role="alert">
-                {{ message }}
-            </div>
-            {% endfor %}
+    <div class="container mt-3">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}" role="alert">
+            {{ message }}
         </div>
-        {% endif %}
+        {% endfor %}
+    </div>
+    {% endif %}
+    
+    <div class="container">
         {% block content %}{% endblock %}
     </div>
 
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+
 </body>
 </html>
