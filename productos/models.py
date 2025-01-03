@@ -9,11 +9,21 @@ class Producto(models.Model):
         return self.nombre
 
 class Venta(models.Model):
+    METODO_PAGO_CHOICES = [
+        ('efectivo', 'Efectivo'),
+        ('tarjeta', 'Tarjeta'),
+    ]
     total = models.DecimalField(max_digits=10, decimal_places=2)
     fecha = models.DateTimeField(auto_now_add=True)
+    metodo_pago = models.CharField(
+        max_length=10,
+        choices=METODO_PAGO_CHOICES,
+        default='efectivo',
+    )
 
     def calcular_total(self):
         return sum(item.subtotal for item in self.items.all())
+
 
 class ItemVenta(models.Model):
     venta = models.ForeignKey(Venta, related_name='items', on_delete=models.CASCADE)

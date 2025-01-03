@@ -6,6 +6,29 @@
 
 {% block content %}
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-pZm1HrYcE3z9kEji5KXfR8tT/wfTRlV1qcbq7uOz2fN+0Kp3EVOI7JpEYkM0Cg8I67v/1EW0NvXaDw0lycHjBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+
+
+<!-- Estilos Adicionales -->
+<style>
+    .btn-primary:hover {
+        background-color: #0056b3;
+    }
+
+    .btn-success:hover {
+        background-color: #218838;
+    }
+
+    .btn-close-white {
+        filter: invert(100%);
+        transition: transform 0.2s;
+    }
+
+    .btn-close-white:hover {
+        transform: scale(1.2);
+    }
+</style>
 
 <div class="container mt-5">
     <div class="p-5 rounded shadow-lg" style="background-color: #2c2c2c;">
@@ -63,12 +86,24 @@
             </tfoot>
         </table>
 
-        <div class="d-flex justify-content-between mt-4">
+        <div class="d-flex justify-content-between mt-4 align-items-center">
+            <!-- Botón Seguir Comprando -->
             <a href="{% url 'lista_productos' %}" 
                class="btn btn-outline-light btn-lg" 
                style="font-size: 1.2rem; padding: 10px 30px;">
                 Seguir Comprando
             </a>
+        
+            <!-- Selector de Método de Pago -->
+            <div class="d-flex align-items-center">
+                <label for="metodo_pago" class="text-white me-2" style="font-size: 1.2rem;">Método de Pago:</label>
+                <select id="metodo_pago" name="metodo_pago" class="form-select form-select-lg" style="width: 200px; margin-right: 15px;">
+                    <option value="efectivo">Efectivo</option>
+                    <option value="tarjeta">Tarjeta</option>
+                </select>
+            </div>
+        
+            <!-- Botón para abrir el modal -->
             <button type="button" 
                     class="btn btn-success btn-lg" 
                     data-bs-toggle="modal" 
@@ -77,27 +112,69 @@
                 Confirmar Compra
             </button>
         </div>
+        
+        
+        
     </div>
 </div>
+
+
 
 <!-- Modal para confirmar compra -->
 <div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content" style="background-color: #2c2c2c; color: white;">
-            <div class="modal-header">
-                <h5 class="modal-title" id="confirmModalLabel">Confirmar Compra</h5>
+        <div class="modal-content" style="background-color: #1e1e1e; color: #f9f9f9; border-radius: 12px; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);">
+            <div class="modal-header" style="border-bottom: 1px solid #444;">
+                <h5 class="modal-title" id="confirmModalLabel" style="font-weight: 600; font-size: 1.5rem;">Confirmar Compra</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body text-center">
-                <p>¿Desea imprimir la boleta o confirmar sin boleta?</p>
+                <p style="font-size: 1.2rem; font-weight: 400; margin: 0;">¿Desea imprimir la boleta o continuar sin ella?</p>
             </div>
-            <div class="modal-footer d-flex justify-content-between">
-                <a href="{% url 'confirmar_compra' %}?imprimir_boleta=1" class="btn btn-primary btn-lg" style="font-size: 1.2rem;">Imprimir Boleta</a>
-                <a href="{% url 'confirmar_compra' %}" class="btn btn-success btn-lg" style="font-size: 1.2rem;">Confirmar sin Boleta</a>
+            <div class="modal-footer d-flex justify-content-around" style="border-top: 1px solid #444;">
+                <!-- Botón Imprimir Boleta -->
+                <form action="{% url 'confirmar_compra' %}" method="post" class="d-flex align-items-center justify-content-center">
+                    {% csrf_token %}
+                    <input type="hidden" name="metodo_pago" id="hidden_metodo_pago">
+                    <button type="submit" name="imprimir_boleta" value="1" class="btn btn-primary" 
+                            style="background-color: #007bff; font-size: 1.1rem; font-weight: 500; border-radius: 8px; padding: 10px 20px; transition: background-color 0.3s;">
+                        <i class="fas fa-print me-2"></i> Imprimir Boleta
+                    </button>
+                </form>
+                <!-- Botón Continuar sin Boleta -->
+                <form action="{% url 'confirmar_compra' %}" method="post" class="d-flex align-items-center justify-content-center">
+                    {% csrf_token %}
+                    <input type="hidden" name="metodo_pago" id="hidden_metodo_pago_no_boleta">
+                    <button type="submit" name="imprimir_boleta" value="0" class="btn btn-success" 
+                            style="background-color: #28a745; font-size: 1.1rem; font-weight: 500; border-radius: 8px; padding: 10px 20px; transition: background-color 0.3s;">
+                        <i class="fas fa-check me-2"></i> Continuar sin Boleta
+                    </button>
+                </form>
             </div>
         </div>
     </div>
 </div>
+
+
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const metodoPagoSelect = document.getElementById("metodo_pago");
+        const hiddenMetodoPago = document.getElementById("hidden_metodo_pago");
+        const hiddenMetodoPagoNoBoleta = document.getElementById("hidden_metodo_pago_no_boleta");
+
+        metodoPagoSelect.addEventListener("change", () => {
+            const selectedValue = metodoPagoSelect.value;
+            hiddenMetodoPago.value = selectedValue;
+            hiddenMetodoPagoNoBoleta.value = selectedValue;
+        });
+
+        // Inicializar con el valor por defecto
+        const defaultValue = metodoPagoSelect.value;
+        hiddenMetodoPago.value = defaultValue;
+        hiddenMetodoPagoNoBoleta.value = defaultValue;
+    });
+</script>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
 {% endblock %}

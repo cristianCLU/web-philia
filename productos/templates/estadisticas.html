@@ -1,11 +1,57 @@
 {% extends 'productos/base.html' %}
 
-{% load custom_filters %} <!-- Carga los filtros personalizados -->
- <!-- Cargar los filtros personalizados -->
+{% load custom_filters %}
 
 {% block title %}Estadísticas{% endblock %}
 
 {% block content %}
+
+<!-- Font Awesome para los iconos -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-pZm1HrYcE3z9kEji5KXfR8tT/wfTRlV1qcbq7uOz2fN+0Kp3EVOI7JpEYkM0Cg8I67v/1EW0NvXaDw0lycHjBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+<!-- Google Fonts (Roboto Slab ya incluido arriba) -->
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<!-- Estilos Personalizados -->
+<style>
+    body {
+        background-color: #1a1a1a;
+        font-family: 'Roboto Slab', serif;
+    }
+    .card-title {
+        font-size: 1.25rem;
+    }
+    .card-text {
+        font-size: 2rem;
+    }
+    canvas {
+        max-height: 500px;
+    }
+
+    .depuration-section {
+        background-color: #333;
+        border: 1px solid #555;
+        margin-bottom: 20px;
+        padding: 20px;
+        border-radius: 8px;
+    }
+    
+    .depuration-section h4 {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: #fff;
+    }
+    
+    .depuration-section p {
+        font-size: 1.2rem;
+        color: #ccc;
+    }
+    
+</style>
+
+
 <div class="container mt-5">
     <h1 class="text-white text-center mb-5 display-3" style="font-family: 'Roboto Slab', serif;">Estadísticas</h1>
 
@@ -54,6 +100,51 @@
             </div>
         </div>
     </div>
+    <div class="card bg-dark text-white shadow-lg mt-5">
+        <div class="card-body">
+            <h2 class="card-title mb-4 text-center" style="font-family: 'Roboto Slab', serif; font-size: 2rem;">Métodos de Pago</h2>
+            <div class="text-white p-4" style="background-color: #333; border-radius: 15px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);">
+                <h4 class="mb-4" style="font-size: 1.8rem; font-weight: bold;">Depuración:</h4>
+                <table class="table table-borderless text-white" style="font-size: 1.4rem;">
+                    <tbody>
+                        <tr>
+                            <td style="font-weight: bold; width: 30%;"><strong>Etiquetas:</strong></td>
+                            <td style="font-size: 1.3rem;">
+                                {% for label in ventas_por_metodo.labels %}
+                                    <span style="padding: 5px 10px; background-color: #444; border-radius: 8px;">{{ label|title }}</span>
+                                    {% if not forloop.last %} {% endif %}
+                                {% endfor %}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: bold;"><strong>Ventas:</strong></td>
+                            <td style="font-size: 1.3rem;">
+                                {% for venta in ventas_por_metodo.ventas %}
+                                    <span style="padding: 5px 10px; background-color: #555; border-radius: 8px;">{{ venta }}</span>
+                                    {% if not forloop.last %} {% endif %}
+                                {% endfor %}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: bold;"><strong>Ingresos:</strong></td>
+                            <td style="font-size: 1.3rem;">
+                                {% for ingreso in ventas_por_metodo.ingresos %}
+                                    <span style="padding: 5px 10px; background-color: #666; border-radius: 8px;">{{ ingreso|clp }}</span>
+                                    {% if not forloop.last %} {% endif %}
+                                {% endfor %}
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <canvas id="metodosPagoChart" class="mt-5"></canvas>
+        </div>
+    </div>
+    
+    
+    
+
+    <br>
 
     <!-- Gráfico de Productos Populares -->
     <div class="card bg-dark text-white shadow-lg">
@@ -64,30 +155,6 @@
     </div>
 </div>
 
-<!-- Font Awesome para los iconos -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-pZm1HrYcE3z9kEji5KXfR8tT/wfTRlV1qcbq7uOz2fN+0Kp3EVOI7JpEYkM0Cg8I67v/1EW0NvXaDw0lycHjBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-
-<!-- Google Fonts (Roboto Slab ya incluido arriba) -->
-
-<!-- Chart.js -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-<!-- Estilos Personalizados -->
-<style>
-    body {
-        background-color: #1a1a1a;
-        font-family: 'Roboto Slab', serif;
-    }
-    .card-title {
-        font-size: 1.25rem;
-    }
-    .card-text {
-        font-size: 2rem;
-    }
-    canvas {
-        max-height: 500px;
-    }
-</style>
 
 <script>
     // Obtener datos de los productos populares desde Django
@@ -99,10 +166,10 @@
         datasets: [{
             label: 'Cantidad Vendida',
             data: productosPopularesDataValues,
-            backgroundColor: 'rgba(255, 99, 132, 0.6)', // Color más vibrante
+            backgroundColor: 'rgba(255, 99, 132, 0.6)',
             borderColor: 'rgba(255, 99, 132, 1)',
             borderWidth: 2,
-            borderRadius: 10, // Bordes redondeados
+            borderRadius: 10,
             hoverBackgroundColor: 'rgba(255, 99, 132, 0.8)',
             hoverBorderColor: 'rgba(255, 99, 132, 1)',
         }]
@@ -158,15 +225,84 @@
                             family: 'Roboto Slab',
                             weight: 'bold'
                         },
-                        precision:0
+                        precision: 0
                     }
                 }
             }
         }
     };
 
-    // Renderizar el gráfico
+    // Renderizar el gráfico de productos populares
     const ctx = document.getElementById('productosPopularesChart').getContext('2d');
     new Chart(ctx, productosPopularesConfig);
 </script>
+<script>
+    // Verificar si los datos están definidos
+    const metodosPagoLabels = {{ ventas_por_metodo.labels|safe }};
+    const metodosPagoVentas = {{ ventas_por_metodo.ventas|safe }};
+    const metodosPagoIngresos = {{ ventas_por_metodo.ingresos|safe }};
+
+    if (metodosPagoLabels.length > 0 && metodosPagoVentas.length > 0 && metodosPagoIngresos.length > 0) {
+        // Formatear los ingresos a CLP
+        const metodosPagoIngresosFormatted = metodosPagoIngresos.map(ingreso =>
+            new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP' }).format(ingreso)
+        );
+
+        const metodosPagoData = {
+            labels: metodosPagoLabels.map(metodo => metodo === 'efectivo' ? 'Efectivo' : 'Tarjeta'),
+            datasets: [
+                {
+                    label: 'Número de Ventas',
+                    data: metodosPagoVentas,
+                    backgroundColor: ['#28a745', '#ffc107'],
+                    hoverBackgroundColor: ['#218838', '#e0a800'],
+                },
+                {
+                    label: 'Ingresos',
+                    data: metodosPagoIngresos,
+                    backgroundColor: ['#17a2b8', '#6610f2'],
+                    hoverBackgroundColor: ['#138496', '#520dc2'],
+                }
+            ]
+        };
+
+        const metodosPagoConfig = {
+            type: 'pie',
+            data: metodosPagoData,
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                        labels: {
+                            color: '#fff',
+                            font: {
+                                family: 'Roboto Slab',
+                                size: 16,
+                            }
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: (context) => {
+                                if (context.dataset.label === 'Ingresos') {
+                                    return `${context.label}: ${metodosPagoIngresosFormatted[context.dataIndex]}`;
+                                }
+                                return `${context.label}: ${context.raw} ventas`;
+                            }
+                        }
+                    }
+                }
+            }
+        };
+
+        // Renderizar el gráfico
+        const metodosPagoCtx = document.getElementById('metodosPagoChart').getContext('2d');
+        new Chart(metodosPagoCtx, metodosPagoConfig);
+    } else {
+        console.error('Datos de métodos de pago incompletos o ausentes.');
+    }
+</script>
+
+
 {% endblock %}

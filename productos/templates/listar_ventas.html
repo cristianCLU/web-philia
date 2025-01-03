@@ -57,7 +57,21 @@
                     <p class="card-text text-white" style="font-size: 1.5rem; font-weight: 600;">
                         <strong>Total:</strong> {{ venta.total|clp }}
                     </p>
-
+                    <p class="card-text text-white d-flex align-items-center" style="font-size: 1rem; font-weight: 500; margin-top: 10px;">
+                        <strong style="margin-right: 8px;">Método de Pago:</strong> 
+                        {% if venta.metodo_pago == "efectivo" %}
+                            <i class="fa-solid fa-money-bill-wave" style="color: #28a745; margin-right: 5px;"></i> <!-- Ícono de efectivo -->
+                            {{ venta.get_metodo_pago_display }}
+                        {% elif venta.metodo_pago == "tarjeta" %}
+                            <i class="fa-solid fa-credit-card" style="color: #007bff; margin-right: 5px;"></i> <!-- Ícono de tarjeta -->
+                            {{ venta.get_metodo_pago_display }}
+                        {% else %}
+                            <i class="fa-solid fa-question-circle" style="color: #ffc107; margin-right: 5px;"></i> <!-- Ícono de desconocido -->
+                            Método desconocido
+                        {% endif %}
+                    </p>
+                    
+                    
                     <!-- Detalles -->
                     <h6 class="card-subtitle mb-3 text-muted" style="font-size: 1.3rem; font-weight: bold;">Detalles de la Venta</h6>
                     <ul class="list-unstyled">

@@ -3,10 +3,12 @@ from .models import Producto, ItemCarrito, Carrito, Venta, ItemVenta
 from .forms import ProductoForm, ItemCarritoForm
 from django.contrib import messages
 from django.db import models
-from django.db.models import Sum
+from django.db.models import Count, Sum
 from decimal import Decimal 
-from datetime import datetime
-
+from django.templatetags.static import static
+from PIL import Image
+from django.conf import settings
+import os
 
 def get_carrito_total(request):
     carrito_id = request.session.get('carrito_id')
@@ -59,12 +61,7 @@ def quitar_producto(request, producto_id):
 
 
 def estadisticas(request):
-    if request.session.get('carrito_id'):
-        try:
-            carrito = Carrito.objects.get(id=request.session['carrito_id'])
-            carrito_total = sum(item.cantidad for item in carrito.itemcarrito_set.all())
-        except Carrito.DoesNotExist:
-            pass
+    from django.db.models import Count, Sum
 
     # Total de ingresos de todas las ventas
     total_ingresos = Venta.objects.aggregate(Sum('total'))['total__sum'] or 0
@@ -85,9 +82,20 @@ def estadisticas(request):
         .order_by('-total_vendidos')[:5]
     )
 
-    # Separar los nombres y las cantidades en listas para el gráfico
     productos_populares_labels = [item['producto__nombre'] for item in productos_populares_qs]
     productos_populares_data = [item['total_vendidos'] for item in productos_populares_qs]
+
+    # Ventas por método de pago
+    ventas_por_metodo_qs = (
+        Venta.objects.values('metodo_pago')
+        .annotate(total_ventas=Count('id'), total_ingresos=Sum('total'))
+    )
+
+    ventas_por_metodo = {
+        'labels': [v['metodo_pago'] for v in ventas_por_metodo_qs],
+        'ventas': [v['total_ventas'] for v in ventas_por_metodo_qs],
+        'ingresos': [v['total_ingresos'] for v in ventas_por_metodo_qs],
+    }
 
     context = {
         'total_ingresos': total_ingresos,
@@ -98,9 +106,12 @@ def estadisticas(request):
             'labels': productos_populares_labels,
             'data': productos_populares_data,
         },
+        'ventas_por_metodo': ventas_por_metodo,  # Añadir al contexto
     }
 
     return render(request, 'estadisticas.html', context)
+
+
 
 
 def ver_carrito(request):
@@ -169,13 +180,14 @@ def modificar_item_carrito(request, item_id):
         form = ItemCarritoForm(instance=item)
     return render(request, 'modificar_item_carrito.html', {'form': form})
 
-# Confirmar la compra
+
 
 def confirmar_compra(request):
     """
-    Confirma la compra y opcionalmente imprime la boleta.
+    Confirma la compra y opcionalmente imprime la boleta con una imagen.
     """
-    imprimir_boleta = request.GET.get('imprimir_boleta', None)  # Verifica si se requiere impresión
+    imprimir_boleta = request.POST.get('imprimir_boleta', '0')  # Captura si se desea imprimir la boleta
+    metodo_pago = request.POST.get('metodo_pago', 'efectivo')  # Captura el método de pago
     carrito_id = request.session.get('carrito_id')
 
     if not carrito_id:
@@ -191,7 +203,7 @@ def confirmar_compra(request):
 
     # Registrar la venta
     total = sum(item.subtotal for item in items)
-    venta = Venta.objects.create(total=total)
+    venta = Venta.objects.create(total=total, metodo_pago=metodo_pago)
     for item in items:
         ItemVenta.objects.create(
             venta=venta,
@@ -205,21 +217,44 @@ def confirmar_compra(request):
     del request.session['carrito_id']
 
     # Generar boleta si se requiere
-    if imprimir_boleta:
+  # Generar boleta si se requiere
+    if imprimir_boleta == '1':
         try:
-            ticket_content = f"""
-            Tienda XYZ
-            Fecha: {venta.fecha.strftime('%Y-%m-%d %H:%M:%S')}
-            -------------------------------
-            """
-            for item in venta.items.all():
-                ticket_content += f"{item.producto.nombre:<20} {item.cantidad:>3} x {item.precio:>6} = {item.subtotal}\n"
-            ticket_content += f"""
-            -------------------------------
-            Total: {venta.total}
-            ¡Gracias por su compra!
-            """
+            # Encabezado del ticket con adornos
+            ticket_content = (
+                f"\n"
+                f"{'=' * 32}\n"
+                f"{'PHILIA':^32}\n"
+                f"{'=' * 32}\n"
+                f"\n"
+                f"Fecha: {venta.fecha.strftime('%Y-%m-%d %H:%M:%S')}\n"
+                f"{'-' * 32}\n"
+                f"Metodo de Pago: {venta.get_metodo_pago_display()}\n"
+                f"{'-' * 32}\n"
+                f"{'Producto':<16}{'Ctd':>4}{'Precio':>10}\n"
+                f"{'-' * 32}\n"
+            )
 
+            # Detalles de los productos
+            for item in venta.items.all():
+                producto_nombre = item.producto.nombre[:14]  # Limita a 14 caracteres
+                ticket_content += (
+                    f"{producto_nombre:<14}{item.cantidad:>4}{item.precio:>10,.0f} CLP\n"
+                )
+
+            # Total
+            ticket_content += (
+                f"{'-' * 32}\n"
+                f"{'Total:':<22}${venta.total:,.0f} CLP\n"
+                f"{'-' * 32}\n"
+                f"{' Gracias por su compra!':^32}\n"
+                f"{'-' * 32}\n"
+                f"{'@philiarave':^32}\n"
+                f"{'' * 32}\n"
+                f"\n"
+            )
+
+            # Configuración de la impresora
             printer_name = "philia1"  # Reemplaza con el nombre de tu impresora
             hprinter = win32print.OpenPrinter(printer_name)
             job = win32print.StartDocPrinter(hprinter, 1, ("Boleta", None, "RAW"))
@@ -228,13 +263,31 @@ def confirmar_compra(request):
             win32print.EndPagePrinter(hprinter)
             win32print.EndDocPrinter(hprinter)
             win32print.ClosePrinter(hprinter)
+
+            messages.success(request, f"Boleta para la venta #{venta.id} generada correctamente.")
+        except Exception as e:
+            messages.error(request, f"Error al imprimir la boleta: {e}")
+
+
+            # Configuración de la impresora
+            printer_name = "philia1"  # Reemplaza con el nombre de tu impresora
+            hprinter = win32print.OpenPrinter(printer_name)
+            job = win32print.StartDocPrinter(hprinter, 1, ("Boleta", None, "RAW"))
+            win32print.StartPagePrinter(hprinter)
+            win32print.WritePrinter(hprinter, ticket_content.encode('ascii', 'replace'))
+            win32print.EndPagePrinter(hprinter)
+            win32print.EndDocPrinter(hprinter)
+            win32print.ClosePrinter(hprinter)
+
             messages.success(request, f"Boleta para la venta #{venta.id} generada correctamente.")
         except Exception as e:
             messages.error(request, f"Error al imprimir la boleta: {e}")
     else:
-        messages.success(request, f"Venta #{venta.id} confirmada sin boleta.")
+        messages.success(request, f"Venta #{venta.id} confirmada sin boleta. Método de pago: {venta.get_metodo_pago_display()}.")
+
 
     return redirect('lista_ventas')
+
 
 
 # Lista de ventas realizadas
@@ -290,47 +343,8 @@ def registrar_venta(request):
     del request.session['carrito_id']
     return venta
 
-def imprimir_boleta(request):
-    """
-    Registra una venta y genera una boleta impresa.
-    """
-    venta = registrar_venta(request)
-    if not venta:
-        return redirect('ver_carrito')  # Si no hay productos, redirigir al carrito
 
-    # Generar contenido del ticket
-    ticket_content = f"""
-    Tienda XYZ
-    Fecha: {venta.fecha.strftime('%Y-%m-%d %H:%M:%S')}
-    -------------------------------
-    """
-    for item in venta.items.all():
-        ticket_content += f"{item.producto.nombre:<20} {item.cantidad:>3} x {item.precio:>6} = {item.subtotal}\n"
-    ticket_content += f"""
-    -------------------------------
-    Total: {venta.total}
-    ¡Gracias por su compra!
-    """
 
-    # Imprimir el ticket
-    printer_name = "philia1"  # Reemplaza con el nombre exacto de tu impresora
-    try:
-        hprinter = win32print.OpenPrinter(printer_name)
-        job = win32print.StartDocPrinter(hprinter, 1, ("Boleta", None, "RAW"))
-        win32print.StartPagePrinter(hprinter)
-        win32print.WritePrinter(hprinter, ticket_content.encode('ascii', 'replace'))
-        win32print.EndPagePrinter(hprinter)
-        win32print.EndDocPrinter(hprinter)
-        win32print.ClosePrinter(hprinter)
-        messages.success(request, f"Boleta para la venta #{venta.id} generada correctamente.")
-    except Exception as e:
-        messages.error(request, f"Error al imprimir la boleta: {e}")
-
-    return redirect('lista_ventas')
-
-from django.shortcuts import redirect
-from django.contrib import messages
-from decimal import Decimal
 
 def confirmar_sin_boleta(request):
     """
@@ -400,55 +414,64 @@ def eliminar_venta(request, venta_id):
 
 def imprimir_ticket(request, venta_id):
     """
-    Imprime un ticket detallado con formato en pesos chilenos.
+    Imprime un ticket con el formato atractivo y moderno, usando '.' como separador de miles.
     """
     # Obtén la venta usando el ID
     venta = get_object_or_404(Venta, id=venta_id)
     items = venta.items.all()
 
-    # Calcula el IVA y el subtotal
-    iva = venta.total * Decimal('0.19')
-    subtotal = venta.total - iva  # Total antes de agregar el IVA
-
-    # Genera el contenido del ticket
-    ticket_content = f"""
-    
-        PHILIA 
-    
-    Fecha: {venta.fecha.strftime('%Y-%m-%d %H:%M:%S')}
-    ---------------------------
-    Producto     Cant. Total
-    ---------------------------
-    """
-    for item in items:
-        ticket_content += f"{item.producto.nombre[:15]:<15} {item.cantidad:>3} x ${item.precio:>6,.0f}\n"
-
-    ticket_content += f"""
-    ---------------------------
-    Subtotal:       ${subtotal:,.0f}
-    IVA (19%):      ${iva:,.0f}
-    ---------------------------
-    TOTAL:          ${venta.total:,.0f}
-    ---------------------------
-    ¡Gracias por su compra!
-    
-    
-    """
-
-
-    # Imprime el ticket usando la impresora térmica
-    printer_name = "philia1"  # Cambia esto por el nombre exacto de tu impresora
     try:
+        # Encabezado del ticket con adornos
+        ticket_content = (
+            f"\n"
+            f"{'=' * 32}\n"
+            f"{'PHILIA':^32}\n"
+            f"{'=' * 32}\n"
+            f"\n"
+            f"Fecha: {venta.fecha.strftime('%Y-%m-%d %H:%M:%S')}\n"
+            f"{'-' * 32}\n"
+            f"Metodo de Pago: {venta.get_metodo_pago_display()}\n"
+            f"{'-' * 32}\n"
+            f"{'Producto':<16}{'Ctd':>4}{'Precio':>10}\n"
+            f"{'-' * 32}\n"
+        )
+
+        # Detalles de los productos
+        for item in items:
+            producto_nombre = item.producto.nombre[:14]  # Limita a 14 caracteres
+            ticket_content += (
+                f"{producto_nombre:<14}{item.cantidad:>4}"
+                f"{item.precio:>10,.0f} CLP\n".replace(',', '.')
+            )
+
+        # Total
+        total_formatted = f"{venta.total:,.0f}".replace(',', '.')
+        ticket_content += (
+            f"{'-' * 32}\n"
+            f"{'Total:':<22}${total_formatted} CLP\n"
+            f"{'-' * 32}\n"
+            f"{' Gracias por su compra!':^32}\n"
+            f"{'-' * 32}\n"
+            f"{'@philiarave':^32}\n"
+            f"{'' * 32}\n"
+            f"\n"
+        )
+
+        # Configuración de la impresora
+        printer_name = "philia1"  # Reemplaza con el nombre exacto de tu impresora
         hprinter = win32print.OpenPrinter(printer_name)
-        job = win32print.StartDocPrinter(hprinter, 1, ("Ticket Venta", None, "RAW"))
+        job = win32print.StartDocPrinter(hprinter, 1, ("Boleta", None, "RAW"))
         win32print.StartPagePrinter(hprinter)
         win32print.WritePrinter(hprinter, ticket_content.encode('ascii', 'replace'))
         win32print.EndPagePrinter(hprinter)
         win32print.EndDocPrinter(hprinter)
         win32print.ClosePrinter(hprinter)
+
         messages.success(request, f"El ticket para la venta #{venta.id} se imprimió correctamente.")
     except Exception as e:
         messages.error(request, f"Error al imprimir el ticket: {e}")
 
     # Redirigir a la lista de ventas después de la impresión
     return redirect('lista_ventas')
+
+
